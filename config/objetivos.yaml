@@ -1,0 +1,15 @@
+# Objetivos de gasto por categoria (EXEMPLO).
+#
+# periodo: mensal -> o alvo vale para cada mês
+# periodo: anual  -> o alvo vale para o ano inteiro (seguros, IUC, etc.)
+#
+# Editas aqui ou no separador Resumo do dashboard. Uma categoria sem linha
+# neste ficheiro simplesmente não tem objetivo — e não é pintada.
+
+objetivos:
+  Supermercado:
+    valor: 400.0
+    periodo: mensal
+  Seguros:
+    valor: 600.0
+    periodo: anual

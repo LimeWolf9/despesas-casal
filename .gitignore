@@ -1,0 +1,6 @@
+data/
+input/*.pdf
+input/*.PDF
+__pycache__/
+*.pyc
+.venv/

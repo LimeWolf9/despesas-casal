@@ -1,0 +1,19 @@
+services:
+  despesas:
+    build: .
+    container_name: despesas
+    ports:
+      # Só localhost. Quando migrares para o mini PC e quiseres aceder do
+      # telemóvel, instalas o Tailscale na máquina e trocas para "8501:8501".
+      # Nunca exponhas isto à internet directamente.
+      - "127.0.0.1:8501:8501"
+    volumes:
+      # A base de dados e os PDFs vivem FORA do container.
+      # Podes reconstruir a imagem à vontade que não perdes nada.
+      - ./data:/app/data
+      - ./input:/app/input
+      # O ficheiro de regras é escrito pela app quando categorizas algo novo.
+      - ./config:/app/config
+    environment:
+      - TZ=Europe/Lisbon
+    restart: unless-stopped

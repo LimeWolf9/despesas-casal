@@ -1,0 +1,9 @@
+{
+  // Faz o Pylance resolver os imports de src/ sem sublinhar tudo a amarelo.
+  "python.analysis.extraPaths": ["./src"],
+  "python.testing.pytestEnabled": true,
+  "python.testing.pytestArgs": ["tests"],
+  "files.exclude": {
+    "**/__pycache__": true
+  }
+}

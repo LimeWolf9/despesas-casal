@@ -1,0 +1,76 @@
+# Regras de categorização (EXEMPLO — as regras reais ficam só no PC de cada um).
+#
+# Como funciona: para cada movimento, o descritivo é passado a minúsculas e
+# procurado por substring. A PRIMEIRA regra que bater ganha — por isso a ordem
+# importa. Regras mais específicas em cima, genéricas em baixo.
+#
+# O que não bater em nada cai em "Por categorizar" e aparece no dashboard para
+# tu resolveres com um clique. Esse clique escreve a regra de volta neste
+# ficheiro. Ou seja: isto cresce sozinho, não tens de o editar à mão.
+#
+# Nota sobre substrings: "norma decoracao" (loja de casa) e "norma lda"
+# (restaurante) começam igual. Substring matching distingue; um modelo de ML
+# provavelmente não distinguiria. É por isto que isto são regras.
+
+categorias:
+  Crédito habitação:
+  - emprestimo 00000000000-cob
+  Supermercado:
+  - mercadona
+  - continente
+  - lidl
+  - pingo doce
+  Restaurantes:
+  - uber eats
+  - norma lda
+  - restaurante
+  Casa:
+  - ikea
+  - leroy merlin
+  - norma decoracao
+  Saúde:
+  - farmacia
+  Combustível:
+  - galp
+  - repsol
+  Transportes:
+  # Portagens e passes. Comer na auto-estrada é Restaurantes, não Transportes.
+  - via verde
+  - cp comboios
+  - metro
+  Alojamento:
+  - booking.com
+  - airbnb
+  Gás/Luz/Água:
+  - dd edp comercial
+  Telecom:
+  - vodafone
+  Lazer:
+  - cinemas
+  Seguros:
+  - pagamento de seguros
+  Encargos bancários:
+  - comissao
+  - imposto de selo
+  - juros devedores
+  Rendimento:
+  - trf a credito sepa+ - empresa exemplo
+  Transferência interna:
+  - de nome da outra conta
+tipos:
+  interno:
+  - Transferência interna
+  pontual:
+  - Alojamento
+
+# Subcategorias: afinam uma categoria sem a partir em duas.
+# Mesma lógica — substring, primeira que bate ganha. O que não bater fica
+# sem subcategoria, e continua a contar na categoria.
+subcategorias:
+  Casa:
+    Mobiliário:
+    - ikea
+    Obras:
+    - leroy merlin
+    Decoração:
+    - norma decoracao

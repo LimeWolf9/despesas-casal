@@ -1,0 +1,11 @@
+# Versões mínimas em vez de pins exactos: os pins vinham do ambiente onde isto
+# foi construído (Python 3.12/Linux) e não tinham wheel para Python 3.13/Windows.
+streamlit>=1.40
+pandas>=2.2
+altair>=5.4
+pdfplumber>=0.11
+PyYAML>=6.0
+
+# Necessário para o Styler.background_gradient na tabela de categorias.
+# Sem isto, o separador "Categorias" rebenta com ImportError.
+matplotlib>=3.8

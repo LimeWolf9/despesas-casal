@@ -1,0 +1,21 @@
+# Configuração do dashboard de despesas.
+#
+# address = "0.0.0.0" faz o Streamlit aceitar ligações de outros
+# dispositivos da rede de casa (o telemóvel da outra pessoa, por exemplo),
+# e não apenas do próprio PC.
+#
+# Isto NÃO expõe nada à internet: só quem estiver no vosso Wi-Fi chega cá.
+# Para acesso de fora de casa, ver a secção Tailscale no README.
+
+[server]
+address = "0.0.0.0"
+port = 8501
+headless = true
+fileWatcherType = "auto"
+
+[browser]
+gatherUsageStats = false
+
+[theme]
+base = "light"
+primaryColor = "#4C78A8"
