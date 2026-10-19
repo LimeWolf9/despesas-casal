@@ -12,12 +12,17 @@ Dois períodos:
 
 from __future__ import annotations
 
+import shutil
 from pathlib import Path
 
 import yaml
 
 RAIZ = Path(__file__).resolve().parent.parent
 FICHEIRO = RAIZ / "config" / "objetivos.yaml"
+# Os objetivos de cada um ficam fora do git: na primeira vez, partem do exemplo.
+EXEMPLO = RAIZ / "config" / "objetivos.exemplo.yaml"
+if not FICHEIRO.exists() and EXEMPLO.exists():
+    shutil.copyfile(EXEMPLO, FICHEIRO)
 
 CABECALHO = """\
 # Objetivos de gasto por categoria.

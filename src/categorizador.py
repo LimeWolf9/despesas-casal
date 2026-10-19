@@ -8,6 +8,7 @@ sempre. É isso que `aprender_regra` faz.
 
 from __future__ import annotations
 
+import shutil
 from pathlib import Path
 
 import yaml
@@ -16,6 +17,10 @@ SEM_CATEGORIA = "Por categorizar"
 
 RAIZ = Path(__file__).resolve().parent.parent
 CONFIG = RAIZ / "config" / "categorias.yaml"
+# As regras de cada um ficam fora do git: na primeira vez, partem do exemplo.
+EXEMPLO = RAIZ / "config" / "categorias.exemplo.yaml"
+if not CONFIG.exists() and EXEMPLO.exists():
+    shutil.copyfile(EXEMPLO, CONFIG)
 
 
 class Categorizador:

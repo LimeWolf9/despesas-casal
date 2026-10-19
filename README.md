@@ -193,8 +193,9 @@ src/parser.py           PDF -> movimentos (+ validação de saldos)
 src/categorizador.py    regras + aprender_regra()
 src/db.py               SQLite, dedup, recategorização
 src/ingest.py           importação por linha de comandos
-config/categorias.yaml  as regras (a app escreve aqui)
-config/objetivos.yaml   objetivos de gasto por categoria
+config/categorias.yaml  as tuas regras (a app escreve aqui; fora do git)
+config/objetivos.yaml   os teus objetivos de gasto (fora do git)
+config/*.exemplo.yaml   exemplos; na primeira vez a app copia-os para os de cima
 src/objetivos.py        ler/gravar objetivos
 src/exportar_monitor.py resumo do mês para o monitor da parede (data/monitor.json)
 src/demo.py             cria data/demo.db com dados inventados
@@ -237,3 +238,15 @@ sensata.
 - **O parser assume o ano do período do extracto.** A viragem dez/jan está
   tratada, mas é o sítio onde eu olharia primeiro se algo parecesse estranho em
   Janeiro.
+
+## Antes de cada commit
+
+Uma verificação trava o commit se algum ficheiro tiver informação privada. Liga-se uma vez:
+
+```bash
+git config core.hooksPath .githooks
+```
+
+Põe numa `.privado.txt` na raiz (o git ignora-a) as palavras que nunca podem sair do teu PC, uma
+por linha: nomes, números de conta, PIN. Bases de dados, extractos e configurações locais são
+sempre travados, mesmo sem a lista.

@@ -5,7 +5,7 @@ Cria data/demo.db com seis meses de movimentos inventados, para experimentar a a
     DESPESAS_DB=data/demo.db streamlit run app.py          (Windows: set DESPESAS_DB=data\\demo.db)
 
 Nada aqui é real: comerciantes genéricos, valores sorteados com semente fixa (dá sempre o mesmo).
-Os descritivos batem com as regras de exemplo em config/categorias.yaml; dois ficam de propósito
+Os descritivos batem com as regras de exemplo em config/categorias.exemplo.yaml; dois ficam de propósito
 por categorizar, para se ver a fila a funcionar.
 """
 
@@ -69,7 +69,7 @@ def movimentos_do_mes(ano: int, mes: int, rnd: random.Random) -> list[tuple[int,
 def main():
     DEMO.unlink(missing_ok=True)
     rnd = random.Random(2026)
-    cat = Categorizador()
+    cat = Categorizador(RAIZ / "config" / "categorias.exemplo.yaml")   # nunca as regras reais
     saldo = Decimal("1500.00")
     with ligar(DEMO) as con:
         for ano, mes in MESES:

@@ -1,0 +1,4 @@
+#!/bin/sh
+# Corre a verificação de informação privada antes de cada commit (ver .githooks/verificar_privado.py).
+PY=python3; command -v $PY >/dev/null 2>&1 || PY=python; command -v $PY >/dev/null 2>&1 || PY=py
+exec $PY "$(git rev-parse --show-toplevel)/.githooks/verificar_privado.py"
