@@ -1,4 +1,10 @@
 #!/bin/sh
 # Corre a verificação de informação privada antes de cada commit (ver .githooks/verificar_privado.py).
-PY=python3; command -v $PY >/dev/null 2>&1 || PY=python; command -v $PY >/dev/null 2>&1 || PY=py
-exec $PY "$(git rev-parse --show-toplevel)/.githooks/verificar_privado.py"
+# No Windows o "python3" pode ser só o atalho da Microsoft Store: usa o primeiro Python que corre mesmo.
+for PY in py python python3; do
+    if command -v "$PY" >/dev/null 2>&1 && "$PY" -c "" >/dev/null 2>&1; then
+        exec "$PY" "$(git rev-parse --show-toplevel)/.githooks/verificar_privado.py"
+    fi
+done
+echo "Não encontrei o Python para a verificação de dados privados: commit travado."
+exit 1
