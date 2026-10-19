@@ -1,0 +1,3 @@
+# O hook corre em sh: tem de ficar com fins de linha LF também no Windows
+.githooks/pre-commit text eol=lf
+*.bat text eol=crlf
