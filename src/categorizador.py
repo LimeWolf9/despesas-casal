@@ -8,7 +8,9 @@ sempre. É isso que `aprender_regra` faz.
 
 from __future__ import annotations
 
+import os
 import shutil
+from datetime import datetime
 from pathlib import Path
 
 import yaml
@@ -21,6 +23,55 @@ CONFIG = RAIZ / "config" / "categorias.yaml"
 EXEMPLO = RAIZ / "config" / "categorias.exemplo.yaml"
 if not CONFIG.exists() and EXEMPLO.exists():
     shutil.copyfile(EXEMPLO, CONFIG)
+
+# Antes de a app reescrever as regras, guarda uma cópia datada (fora do git) e fica com as 30 mais recentes.
+COPIAS = RAIZ / "config" / "copias"
+MAX_COPIAS = 30
+# Outra pasta para onde copiar também (ex.: uma do OneDrive): a variável DESPESAS_COPIAS_DIR,
+# ou "copias_dir:" no config/local.yaml (fora do git).
+LOCAL = RAIZ / "config" / "local.yaml"
+
+
+def pasta_extra_copias() -> Path | None:
+    pasta = os.environ.get("DESPESAS_COPIAS_DIR")
+    if not pasta and LOCAL.exists():
+        try:
+            pasta = (yaml.safe_load(LOCAL.read_text(encoding="utf-8")) or {}).get("copias_dir")
+        except (OSError, yaml.YAMLError, AttributeError):
+            pasta = None
+    return Path(os.path.expandvars(os.path.expanduser(str(pasta)))) if pasta else None
+
+
+def copia_de_seguranca(caminho: Path) -> Path | None:
+    """Copia o ficheiro para config/copias/<nome>-AAAAMMDD-HHMMSS.yaml (e para a pasta extra, se houver).
+
+    Apaga as cópias mais antigas a partir da 31.ª. Devolve a cópia feita, ou None se não havia ficheiro.
+    """
+    caminho = Path(caminho)
+    if not caminho.exists():
+        return None
+    nome = f"{caminho.stem}-{datetime.now():%Y%m%d-%H%M%S}{caminho.suffix}"
+    COPIAS.mkdir(parents=True, exist_ok=True)
+    extra = pasta_extra_copias()
+    copia, n = COPIAS / nome, 2
+    while copia.exists() or (extra and (extra / copia.name).exists()):   # duas gravações no mesmo segundo
+        copia = COPIAS / f"{Path(nome).stem}-{n}{caminho.suffix}"
+        n += 1
+    shutil.copy2(caminho, copia)
+    # Da mais antiga para a mais recente: pela data no nome e, no mesmo segundo, pelo contador (-2, -3...)
+    def ordem(p: Path):
+        partes = p.stem[len(caminho.stem) + 1:].split("-")
+        return partes[:2], int(partes[2]) if len(partes) > 2 and partes[2].isdigit() else 1
+    antigas = sorted(COPIAS.glob(f"{caminho.stem}-*{caminho.suffix}"), key=ordem)
+    for velha in antigas[:-MAX_COPIAS]:
+        velha.unlink(missing_ok=True)
+    if extra:
+        try:   # uma pasta de rede/OneDrive em falta não pode impedir de gravar a regra
+            extra.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(caminho, extra / copia.name)
+        except OSError as e:
+            print(f"Aviso: não consegui copiar as regras para {extra} ({e}).")
+    return copia
 
 
 class Categorizador:
@@ -79,6 +130,7 @@ class Categorizador:
                 break
         corpo = yaml.safe_dump(cfg, allow_unicode=True, sort_keys=False,
                                default_flow_style=False)
+        copia_de_seguranca(self.caminho)
         with open(self.caminho, "w", encoding="utf-8") as f:
             f.write("\n".join(cabecalho).rstrip() + "\n\n" + corpo)
         self.recarregar()

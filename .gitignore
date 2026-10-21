@@ -8,6 +8,9 @@ __pycache__/
 # Regras e objetivos de cada um (partem dos .exemplo.yaml)
 config/categorias.yaml
 config/objetivos.yaml
+# Cópias datadas das regras (antes de cada gravação) e configuração local (ex.: copias_dir)
+config/copias/
+config/local.yaml
 
 # Lista privada da verificação antes de cada commit
 .privado.txt

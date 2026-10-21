@@ -196,6 +196,7 @@ src/ingest.py           importação por linha de comandos
 config/categorias.yaml  as tuas regras (a app escreve aqui; fora do git)
 config/objetivos.yaml   os teus objetivos de gasto (fora do git)
 config/*.exemplo.yaml   exemplos; na primeira vez a app copia-os para os de cima
+config/copias/          cópias datadas das regras, antes de cada gravação (as 30 mais recentes; fora do git)
 src/objetivos.py        ler/gravar objetivos
 src/exportar_monitor.py resumo do mês para o monitor da parede (data/monitor.json)
 src/demo.py             cria data/demo.db com dados inventados
@@ -212,6 +213,19 @@ python src/ingest.py
 ```
 
 ---
+
+## Cópias das regras
+
+Antes de a app reescrever o `config/categorias.yaml` (ao aprender uma regra), guarda uma cópia em
+`config/copias/categorias-AAAAMMDD-HHMMSS.yaml` e fica só com as 30 mais recentes. Para recuperar
+uma versão, copia-a por cima do `config/categorias.yaml` com a app fechada.
+
+Para ter também uma cópia fora do PC (ex.: numa pasta do OneDrive), diz qual é a pasta numa destas:
+
+- a variável de ambiente `DESPESAS_COPIAS_DIR`;
+- ou o ficheiro `config/local.yaml` (fora do git), com a linha `copias_dir: C:/Users/<tu>/OneDrive/despesas-copias`.
+
+Se essa pasta não estiver disponível, a regra grava-se na mesma e aparece um aviso no terminal.
 
 ## Num servidor em casa
 
