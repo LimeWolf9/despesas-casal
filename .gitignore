@@ -14,3 +14,6 @@ config/local.yaml
 
 # Lista privada da verificação antes de cada commit
 .privado.txt
+
+# Afinações do Docker de cada máquina (ex.: abrir a porta à rede de casa no mini PC)
+docker-compose.override.yml

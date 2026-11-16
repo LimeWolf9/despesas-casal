@@ -23,10 +23,29 @@ from db import (ligar, guardar_extracto, recategorizar_tudo,            # noqa: 
                 definir_categoria, definir_etiqueta, aplicar_subcategorias,
                 definir_subcategoria)
 from parser import ler_extracto, ErroDeParsing                          # noqa: E402
+import senha                                                            # noqa: E402
 
 INPUT = RAIZ / "input"
 
 st.set_page_config(page_title="Despesas", page_icon="🏠", layout="wide")
+
+def pedir_senha() -> None:
+    """Se houver password (python src/senha.py), nada aparece antes de a acertarem. Fica válida até fechar o separador."""
+    esperado = senha.hash_configurado()
+    if not esperado or st.session_state.get("entrou"):
+        return
+    st.title("🏠 Despesas")
+    with st.form("entrar"):
+        tentativa = st.text_input("Password", type="password")
+        if st.form_submit_button("Entrar"):
+            if senha.confere(tentativa, esperado):
+                st.session_state["entrou"] = True
+                st.rerun()
+            st.error("Password errada.")
+    st.stop()
+
+
+pedir_senha()
 
 # ---------------------------------------------------------------- estilo
 
@@ -157,13 +176,19 @@ with cb_lim:
 
 sel_meses = st.session_state["meses_sel"] or meses
 
-f = df[df["mes"].isin(sel_meses)].copy()
-if not incluir_internas:
-    f = f[f["tipo"] != "interno"]
-if not incluir_pontuais:
-    f = f[f["tipo"] != "pontual"]
-if excluir_etq:
-    f = f[~f["etiqueta"].isin(excluir_etq)]
+def filtrar(meses_escolhidos: list[str]) -> pd.DataFrame:
+    """Os movimentos desses meses, com os mesmos filtros da barra lateral."""
+    g = df[df["mes"].isin(meses_escolhidos)].copy()
+    if not incluir_internas:
+        g = g[g["tipo"] != "interno"]
+    if not incluir_pontuais:
+        g = g[g["tipo"] != "pontual"]
+    if excluir_etq:
+        g = g[~g["etiqueta"].isin(excluir_etq)]
+    return g
+
+
+f = filtrar(sel_meses)
 
 por_categorizar = f[f["categoria"] == SEM_CATEGORIA]
 if len(por_categorizar):
@@ -174,15 +199,40 @@ if len(por_categorizar):
 
 n_meses = max(len(sel_meses), 1)
 saidas, entradas = f["saida"].sum(), f["entrada"].sum()
+ultimo = df.sort_values("data").iloc[-1]
+
+# Com um só mês escolhido, a etiqueta compara com o mês anterior (verde = melhor, vermelho = pior:
+# nas saídas, gastar mais é pior). Com vários meses não há etiqueta, só a média por mês por baixo.
+anterior = None
+if len(sel_meses) == 1:
+    mes_ant = str(pd.Period(sel_meses[0], freq="M") - 1)
+    if mes_ant in meses:
+        anterior = filtrar([mes_ant])
+
+
+def comparar(agora: float, antes: float) -> str | None:
+    d = agora - antes
+    if abs(d) < 0.005:      # igual ao mês anterior: sem etiqueta (nem verde nem vermelho)
+        return None
+    return f"{'+' if d > 0 else ''}{euro(d)} vs {rotulo_mes(mes_ant)}"
+
 
 c1, c2, c3, c4 = st.columns(4)
-c1.metric("Saídas", euro(saidas), f"{euro(saidas / n_meses)}/mês")
-c2.metric("Entradas", euro(entradas), f"{euro(entradas / n_meses)}/mês")
-c3.metric("Saldo do período", euro(entradas - saidas),
-          f"{euro((entradas - saidas) / n_meses)}/mês",
-          delta_color="normal" if entradas >= saidas else "inverse")
-c4.metric("Saldo em conta", euro(df.sort_values("data").iloc[-1]["saldo"]),
-          df.sort_values("data").iloc[-1]["data"].strftime("%d/%m/%Y"))
+if anterior is not None:
+    s_ant, e_ant = anterior["saida"].sum(), anterior["entrada"].sum()
+    c1.metric("Saídas", euro(saidas), comparar(saidas, s_ant), delta_color="inverse")
+    c2.metric("Entradas", euro(entradas), comparar(entradas, e_ant))
+    c3.metric("Saldo do mês", euro(entradas - saidas), comparar(entradas - saidas, e_ant - s_ant))
+else:
+    c1.metric("Saídas", euro(saidas))
+    c2.metric("Entradas", euro(entradas))
+    c3.metric("Saldo do mês" if n_meses == 1 else "Saldo do período", euro(entradas - saidas))
+    if n_meses > 1:
+        c1.caption(f"Média {euro(saidas / n_meses)}/mês")
+        c2.caption(f"Média {euro(entradas / n_meses)}/mês")
+        c3.caption(f"Média {euro((entradas - saidas) / n_meses)}/mês")
+c4.metric("Saldo em conta", euro(ultimo["saldo"]))
+c4.caption(f"No último extracto, a {ultimo['data']:%d/%m/%Y}")
 
 VISTAS = ["Resumo", "Visão geral", "Categorias", "Movimentos", "Por categorizar"]
 
